@@ -11,9 +11,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
-app.get("/", (req, res) => {
-  res.send("hello world");
-});
+import authRoutes from "./routes.auth.routes.js";
+
+app.use("/api/v1", authRoutes);
 
 app.use(errorHandler);
 
