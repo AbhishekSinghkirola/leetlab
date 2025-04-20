@@ -1,0 +1,35 @@
+{
+  "name": "leetlab",
+  "version": "1.0.0",
+  "description": "A Platform inspired by leetcode.",
+  "keywords": [
+    "LeetLab",
+    "coding-platform"
+  ],
+  "homepage": "https://github.com/AbhishekSinghkirola/leetlab#readme",
+  "bugs": {
+    "url": "https://github.com/AbhishekSinghkirola/leetlab/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbhishekSinghkirola/leetlab.git"
+  },
+  "license": "ISC",
+  "author": "Abhishek Singh Kirola",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "morgan": "^1.10.0",
+    "winston": "^3.17.0"
+  }
+}
