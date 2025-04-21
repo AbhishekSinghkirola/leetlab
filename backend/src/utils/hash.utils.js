@@ -30,7 +30,11 @@ export const generateAccessToken = (userId) => {
 
 export const generateRefreshToken = async () => {
   try {
-    return await crypto.randomBytes(32).toString("hex");
+    const refreshToken = await crypto.randomBytes(32).toString("hex");
+    const refreshTokenExpiry = new Date();
+    refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 30);
+
+    return { refreshToken, refreshTokenExpiry };
   } catch (error) {
     throw error;
   }

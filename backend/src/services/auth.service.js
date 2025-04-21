@@ -4,6 +4,7 @@ import {
   generateAccessToken,
   hashPassword,
   generateRefreshToken,
+  verifyPassword,
 } from "../utils/hash.utils.js";
 
 export const registerUserService = async ({ email, password, name }) => {
@@ -27,9 +28,7 @@ export const registerUserService = async ({ email, password, name }) => {
     });
 
     const accessToken = await generateAccessToken(newUser.id);
-    const refreshToken = await generateRefreshToken();
-    const refreshTokenExpiry = new Date();
-    refreshTokenExpiry.setDate(refreshTokenExpiry.getDate() + 30);
+    const { refreshToken, refreshTokenExpiry } = await generateRefreshToken();
 
     await db.user.update({
       where: { id: newUser.id },
@@ -52,6 +51,96 @@ export const registerUserService = async ({ email, password, name }) => {
     };
 
     return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const loginUserService = async (email, password) => {
+  try {
+    const existingUser = await db.user.findUnique({
+      where: { email },
+    });
+
+    if (!existingUser) {
+      throw new ApiError(404, "User does not exist.");
+    }
+
+    const isValidPassword = await verifyPassword(
+      password,
+      existingUser.password
+    );
+
+    if (!isValidPassword) {
+      throw new ApiError(401, "Invalid credentials.");
+    }
+
+    const accessToken = await generateAccessToken(existingUser.id);
+    const { refreshToken, refreshTokenExpiry } = await generateRefreshToken();
+
+    await db.user.update({
+      where: { id: existingUser.id },
+      data: {
+        refreshToken,
+        refreshTokenExpiry,
+      },
+    });
+
+    const data = {
+      accessToken,
+      refreshToken,
+      user: {
+        id: existingUser?.id,
+        name: existingUser?.name,
+        email: existingUser?.email,
+        image: existingUser?.image,
+      },
+    };
+
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const logoutService = async (userId) => {
+  try {
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        refreshToken: null,
+        refreshTokenExpiry: null,
+      },
+    });
+
+    return true;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const refreshTokenService = async (token) => {
+  try {
+    const existingUser = await db.user.findFirst({
+      where: { refreshToken: token },
+    });
+
+    if (!existingUser) {
+      throw new ApiError(401, "Invalid refresh token.");
+    }
+
+    const accessToken = await generateAccessToken(existingUser.i);
+    const { refreshToken, refreshTokenExpiry } = await generateRefreshToken();
+
+    await db.user.update({
+      where: { id: existingUser.id },
+      data: {
+        refreshToken,
+        refreshTokenExpiry,
+      },
+    });
+
+    return { accessToken, refreshToken };
   } catch (error) {
     throw error;
   }
